@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Shopping Cart</title>
+    <script src="//code.jquery.com/jquery-1.11.1.min.js"></script>
+    <link href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
+    <script src="//netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js"></script>
+</head>
+<body>
+<div class="container">
+    <div class="row">
+        <div class="col-sm-12 col-md-10 col-md-offset-1">
+            <table class="table table-hover">
+                <thead>
+                <tr>
+                    <th>Product</th>
+                    <th>Quantity</th>
+                    <th class="text-center">Price</th>
+                    <th class="text-center">Total</th>
+                    <th> </th>
+                </tr>
+                </thead>
+                <tbody>
+                <th:block th:each="item : ${session.shoppingCart.basketItems}">
+                    <form action="#" th:action="@{/update-quantity}" th:object="${item}" method="post">
+                        <tr>
+                            <td class="col-sm-8 col-md-6">
+                                <div class="media">
+                                    <a class="thumbnail pull-left" href="#"> <img class="media-object"
+                                                                                  th:src="${item.product.imageUrl}"
+                                                                                  style="width: 72px; height: 72px;">
+                                    </a>
+                                    <div class="media-body">
+                                        <h4 class="media-heading"><a href="#" th:text="${item.product.name}"></a></h4>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="col-sm-1 col-md-1" style="text-align: center">
+                                <input type="number" min="0" class="form-control" th:value="*{quantity}" id="quantity" name="quantity">
+                                <input type="hidden" th:value="${item.product.id}" id="id" name="id"/>
+                                <button type="submit" class="btn btn-link">Update</button>
+                            </td>
+                            <td class="col-sm-1 col-md-1 text-center"><strong th:text="${item.product.price}"></strong>
+                            </td>
+                            <td class="col-sm-1 col-md-1 text-center"><strong th:text="${item.getTotal()}"></strong></td>
+                            <td class="col-sm-1 col-md-1">
+                                <a th:href="@{/remove/{id}(id=${item.product.id})}" class="btn btn-danger">
+                                    <span class="glyphicon glyphicon-remove"></span> Remove
+                                </a>
+                            </td>
+                        </tr>
+                    </form>
+                </th:block>
+                <tr>
+                    <td>  </td>
+                    <td>  </td>
+                    <td>  </td>
+                    <td><h5>Subtotal</h5></td>
+                    <td class="text-right"><h5><strong
+                            th:text="${session.shoppingCart.calculateBasketSubTotal()} + 'TL'"></strong></h5></td>
+                </tr>
+                <tr>
+                    <td>  </td>
+                    <td>  </td>
+                    <td>  </td>
+                    <td><h5>Estimated shipping</h5></td>
+                    <td class="text-right"><h5><strong th:text="${session.shoppingCart.getShippingPrice()} + 'TL'"></strong></h5></td>
+                </tr>
+                <tr>
+                    <td>  </td>
+                    <td>  </td>
+                    <td>  </td>
+                    <td><h5>KDV</h5></td>
+                    <td class="text-right"><h5><strong
+                            th:text="${session.shoppingCart.calculateBasketKdv()} + 'TL'"></strong></h5></td>
+                </tr>
+                <tr>
+                    <td>  </td>
+                    <td>  </td>
+                    <td>  </td>
+                    <td><h3>Total</h3></td>
+                    <td class="text-right"><h3><strong th:text="${session.shoppingCart.calculateBasketTotal()} + 'TL'"></strong></h3></td>
+                </tr>
+                <tr>
+                    <td>  </td>
+                    <td>  </td>
+                    <td>  </td>
+                    <td>
+                        <button type="button" class="btn btn-default">
+                            <span class="glyphicon glyphicon-shopping-cart"></span> Continue Shopping
+                        </button>
+                    </td>
+                    <td>
+                        <button type="button" class="btn btn-success" data-toggle="modal" data-target="#myModal">
+                            Checkout <span class="glyphicon glyphicon-play"></span>
+                        </button>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="myModalLabel">Payment Method</h4>
+            </div>
+            <div class="modal-body">
+                <a th:href="@{/payment/cc}" class="btn btn-info">Pay with Credit Card</a>
+                <a th:href="@{/payment/pp}" class="btn btn-info">Pay with PayPal</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function remove(id)
+    {
+        var xmlHttp = new XMLHttpRequest();
+        xmlHttp.open( "GET", "/remove/" + id, false ); // false for synchronous request
+        xmlHttp.send( null );
+        return xmlHttp.responseText;
+    }
+</script>
+</body>
+</html>
